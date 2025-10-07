@@ -4,6 +4,31 @@
 
 در این جزوه، ما به طور کامل بر روی **Method Syntax** (که به آن Fluent Syntax هم می‌گویند) تمرکز می‌کنیم، چون رایج‌تر، انعطاف‌پذیرتر و قدرتمندتر از Query Syntax است.
 
+---
+
+## 🧭 فهرست مطالب
+
+- [🎯 چرا LINQ اینقدر مهمه؟](#-چرا-linq-اینقدر-مهمه)
+- [📚 مفاهیم پایه قبل از شروع](#-مفاهیم-پایه-قبل-از-شروع)
+  - [۱. رابط `IEnumerable<T>`](#-۱-رابط-ienumerablet)
+  - [۲. عبارات لامبدا (Lambda Expressions)](#-۲-عبارات-لامبدا-lambda-expressions)
+  - [۳. اجرای معوق (Deferred Execution)](#-۳-اجرای-معوق-deferred-execution)
+  - [۴. اجرای فوری (Immediate Execution)](#-۴-اجرای-فوری-immediate-execution)
+- [⚙️ دسته‌بندی متدهای LINQ](#-دسته‌بندی-متدهای-linq)
+  - [۱. متدهای پالایش (Filtering)](#-۱-متدهای-پالایش-filtering)
+  - [۲. متدهای تبدیل (Projection)](#-۲-متدهای-تبدیل-projection)
+  - [۳. متدهای مرتب‌سازی (Ordering)](#-۳-متدهای-مرتب‌سازی-ordering)
+  - [۴. متدهای گروه‌بندی (Grouping)](#-۴-متدهای-گروه‌بندی-grouping)
+  - [۵. متدهای اتصال (Joining)](#-۵-متدهای-اتصال-joining)
+  - [۶. متدهای تجميع (Aggregation)](#-۶-متدهای-تجميع-aggregation)
+  - [۷. متدهای سورها (Quantifiers)](#-۷-متدهای-سورها-quantifiers)
+  - [۸. عملگرهای عنصری (Element Operators)](#-۸-عملگرهای-عنصری-element-operators)
+  - [۹. متدهای تولید (Generation)](#-۹-متدهای-تولید-generation)
+  - [۱۰. عملگرهای مجموعه (Set Operators)](#-۱۰-عملگرهای-مجموعه-set-operators)
+- [🎉 جمع‌بندی نهایی](#-جمع‌بندی-نهایی)
+
+---
+
 ## 🎯 چرا LINQ اینقدر مهمه؟
 
 * **کدنویسی تمیز و خوانا:** کدهای شما کوتاه‌تر، تمیزتر و شبیه به زبان انسان می‌شود.
@@ -15,7 +40,7 @@
 
 ## 📚 مفاهیم پایه قبل از شروع
 
-قبل از شیرجه زدن در متدها، باید با چند مفهوم کلیدی آشنا شوید:
+قبل از شیرجه زدن در متدها، باید با چند مفهوم کلیدی و بنیادین آشنا شوید.
 
 ### ۱. رابط `IEnumerable<T>`
 تقریباً تمام متدهای LINQ بر روی یک دنباله (Sequence) از داده‌ها کار می‌کنند. در دات‌نت، این دنباله با رابط `IEnumerable<T>` نمایش داده می‌شود. هر چیزی که این رابط را پیاده‌سازی کند (مثل `List<T>`, `T[]`, `Dictionary<TKey, TValue>`)، می‌تواند از قدرت LINQ استفاده کند.
@@ -24,15 +49,15 @@
 عبارات لامبدا (`=>`) روشی کوتاه و قدرتمند برای نوشتن توابع بی‌نام (Anonymous Functions) هستند. تقریباً تمام متدهای LINQ یک تابع به عنوان ورودی می‌گیرند تا منطق شما را روی داده‌ها اعمال کنند.
 
 ```csharp
-// یک عبارت لامبدا که چک می‌کند آیا یک عدد زوج است یا نه
+// This lambda expression checks if a number is even.
 n => n % 2 == 0
 
-// ساختار کلی
-(parameters) => { logic }
+// General structure:
+// (parameters) => { logic }
 ```
 
 ### ۳. اجرای معوق (Deferred Execution)
-این یکی از مهم‌ترین و جالب‌ترین ویژگی‌های LINQ است! بسیاری از متدهای LINQ (مثل `Where`, `Select`, `OrderBy`) **بلافاصله اجرا نمی‌شوند**. آن‌ها فقط یک "دستورالعمل" یا "Query" می‌سازند. این کوئری زمانی اجرا می‌شود که شما واقعاً به نتایج نیاز داشته باشید، مثلاً وقتی روی آن یک حلقه `foreach` می‌زنید یا آن را به یک لیست تبدیل می‌کنید (`.ToList()`).
+🧠 این یکی از مهم‌ترین و جالب‌ترین ویژگی‌های LINQ است! بسیاری از متدهای LINQ (مثل `Where`, `Select`, `OrderBy`) **بلافاصله اجرا نمی‌شوند**. آن‌ها فقط یک "دستورالعمل" یا "Query" می‌سازند. این کوئری زمانی اجرا می‌شود که شما واقعاً به نتایج نیاز داشته باشید، مثلاً وقتی روی آن یک حلقه `foreach` می‌زنید یا آن را به یک لیست تبدیل می‌کنید (`.ToList()`).
 
 **مزیت:** این کار باعث بهینگی فوق‌العاده‌ای می‌شود. اگر شما یک کوئری پیچیده روی یک لیست میلیونی بنویسید ولی فقط ۵ آیتم اول آن را بخواهید، LINQ فقط به اندازه‌ای که لازم است داده‌ها را پردازش می‌کند.
 
@@ -40,20 +65,22 @@ n => n % 2 == 0
 در مقابل، متدهایی مثل `ToList()`, `ToArray()`, `Count()`, `First()`, `Max()` کوئری را **بلافاصله** اجرا می‌کنند و نتیجه را برمی‌گردانند.
 
 ```csharp
+// Sample data source
 var numbers = new List<int> { 1, 2, 3, 4, 5, 6 };
 
-// --- اجرای معوق ---
-// در این خط هیچ اتفاقی نمی‌افتد، فقط یک کوئری ساخته می‌شود
+// --- Deferred Execution ---
+// The query is defined here, but not executed yet.
+// No processing happens on this line.
 var evenNumbersQuery = numbers.Where(n => n % 2 == 0);
 
-// --- اجرای فوری ---
-// اینجا کوئری بالاخره اجرا می‌شود چون ما به داده‌ها نیاز داریم
+// --- Immediate Execution ---
+// The query runs here because we start iterating over the results.
 foreach (var num in evenNumbersQuery)
 {
-    Console.WriteLine(num); // خروجی: 2, 4, 6
+    Console.WriteLine(num); // Output: 2, 4, 6
 }
 
-// این متد کوئری را فورا اجرا کرده و نتیجه را در یک لیست جدید می‌ریزد
+// This method immediately executes the query and stores the results in a new list.
 List<int> evenNumbersList = numbers.Where(n => n % 2 == 0).ToList();
 ```
 
@@ -70,11 +97,11 @@ List<int> evenNumbersList = numbers.Where(n => n % 2 == 0).ToList();
 شایع‌ترین و پرکاربردترین متد LINQ. دنباله‌ای جدید از عناصری که شرط شما را برآورده می‌کنند، برمی‌گرداند.
 
 ```csharp
-// مثال ۱: پیدا کردن اعداد زوج
+// Example 1: Find even numbers
 var numbers = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-var evenNumbers = numbers.Where(n => n % 2 == 0); // نتیجه: { 2, 4, 6, 8, 10 }
+var evenNumbers = numbers.Where(n => n % 2 == 0); // Result: { 2, 4, 6, 8, 10 }
 
-// مثال ۲: پیدا کردن محصولات گران‌قیمت
+// Example 2: Find expensive products
 public class Product { public string Name; public double Price; }
 var products = new List<Product>
 {
@@ -82,20 +109,21 @@ var products = new List<Product>
     new Product { Name = "Mouse", Price = 50 },
     new Product { Name = "Keyboard", Price = 150 }
 };
-var expensiveProducts = products.Where(p => p.Price > 100); // نتیجه: Laptop, Keyboard
+var expensiveProducts = products.Where(p => p.Price > 100); // Result contains Laptop and Keyboard
 ```
 
 #### `OfType`
 دنباله‌ای را بر اساس نوع داده‌ای خاص فیلتر می‌کند. بسیار کاربردی وقتی با یک لیست از نوع `object` کار می‌کنید.
 
 ```csharp
+// A sample mixed-type list using the non-generic ArrayList
 var mixedList = new ArrayList { 1, "Hello", 3.14, "World", 5, true };
 
-// فقط رشته‌ها را استخراج کن
-var strings = mixedList.OfType<string>(); // نتیجه: { "Hello", "World" }
+// Filter and extract only the strings from the list
+var strings = mixedList.OfType<string>(); // Result: { "Hello", "World" }
 
-// فقط اعداد صحیح را استخراج کن
-var integers = mixedList.OfType<int>(); // نتیجه: { 1, 5 }
+// Filter and extract only the integers from the list
+var integers = mixedList.OfType<int>(); // Result: { 1, 5 }
 ```
 
 ---
@@ -107,19 +135,19 @@ var integers = mixedList.OfType<int>(); // نتیجه: { 1, 5 }
 از هر عنصر در دنباله ورودی، یک عنصر جدید در دنباله خروجی تولید می‌کند. به عبارت دیگر، داده‌ها را از یک شکل به شکل دیگر "تبدیل" (Project) می‌کند.
 
 ```csharp
-// مثال ۱: گرفتن مربع اعداد
+// Example 1: Get the square of each number
 var numbers = new List<int> { 1, 2, 3, 4, 5 };
-var squares = numbers.Select(n => n * n); // نتیجه: { 1, 4, 9, 16, 25 }
+var squares = numbers.Select(n => n * n); // Result: { 1, 4, 9, 16, 25 }
 
-// مثال ۲: استخراج نام محصولات
-var productNames = products.Select(p => p.Name); // نتیجه: { "Laptop", "Mouse", "Keyboard" }
+// Example 2: Extract only the product names
+var productNames = products.Select(p => p.Name); // Result: { "Laptop", "Mouse", "Keyboard" }
 
-// مثال ۳: تبدیل به یک نوع جدید (Anonymous Type)
+// Example 3: Project to a new anonymous type with different properties
 var productInfo = products.Select(p => new {
     ProductName = p.Name,
-    PriceInToman = p.Price * 50000 // فرض کنیم دلار ۵۰ هزار تومان است
+    PriceInToman = p.Price * 50000 // Let's assume a conversion rate
 });
-// نتیجه: لیستی از اشیاء جدید با دو پراپرتی ProductName و PriceInToman
+// The result is a list of new objects, each with ProductName and PriceInToman properties
 ```
 
 #### `SelectMany`
@@ -133,13 +161,13 @@ var authors = new List<Author>
     new Author { Name = "Robert C. Martin", Books = new List<string> { "Clean Code", "Clean Architecture" } }
 };
 
-// اگر از Select استفاده کنیم، یک لیست از لیست‌ها خواهیم داشت
+// Using 'Select' would give us a list of lists (IEnumerable<List<string>>)
 var listOfBookLists = authors.Select(a => a.Books);
-// نتیجه: { { "Refactoring", "PoEAA" }, { "Clean Code", "Clean Architecture" } }
+// Result: { { "Refactoring", "PoEAA" }, { "Clean Code", "Clean Architecture" } }
 
-// با SelectMany همه کتاب‌ها را در یک لیست واحد می‌ریزیم
+// 'SelectMany' flattens the sequence of lists into a single sequence of strings
 var allBooks = authors.SelectMany(a => a.Books);
-// نتیجه: { "Refactoring", "PoEAA", "Clean Code", "Clean Architecture" }
+// Result: { "Refactoring", "PoEAA", "Clean Code", "Clean Architecture" }
 ```
 
 ---
@@ -151,13 +179,13 @@ var allBooks = authors.SelectMany(a => a.Books);
 دنباله را بر اساس یک کلید مشخص به صورت صعودی (`OrderBy`) یا نزولی (`OrderByDescending`) مرتب می‌کنند.
 
 ```csharp
-// مثال ۱: مرتب‌سازی اعداد
+// Example 1: Sort numbers
 var numbers = new List<int> { 5, 2, 8, 1, 9 };
-var sortedNumbers = numbers.OrderBy(n => n); // نتیجه: { 1, 2, 5, 8, 9 }
-var reverseSortedNumbers = numbers.OrderByDescending(n => n); // نتیجه: { 9, 8, 5, 2, 1 }
+var sortedNumbers = numbers.OrderBy(n => n); // Result: { 1, 2, 5, 8, 9 }
+var reverseSortedNumbers = numbers.OrderByDescending(n => n); // Result: { 9, 8, 5, 2, 1 }
 
-// مثال ۲: مرتب‌سازی محصولات بر اساس قیمت
-var sortedByPrice = products.OrderBy(p => p.Price); // نتیجه: Mouse, Keyboard, Laptop
+// Example 2: Sort products by their price
+var sortedByPrice = products.OrderBy(p => p.Price); // Result: Mouse, Keyboard, Laptop
 ```
 
 #### `ThenBy` & `ThenByDescending`
@@ -172,9 +200,9 @@ var people = new List<Person>
     new Person { City = "Tehran", Name = "Reza" }
 };
 
-// مرتب‌سازی اول بر اساس شهر، سپس بر اساس نام
+// First, order by City, and for those with the same city, order by Name
 var sortedPeople = people.OrderBy(p => p.City).ThenBy(p => p.Name);
-// نتیجه:
+// Resulting order:
 // { City = "Shiraz", Name = "Sara" }
 // { City = "Tehran", Name = "Ali" }
 // { City = "Tehran", Name = "Reza" }
@@ -198,18 +226,22 @@ var products = new List<Product>
     new Product { Name = "Banana", Category = "Fruit", Price = 1.5 }
 };
 
+// Group the products by their Category property
 var productsByCategory = products.GroupBy(p => p.Category);
 
-// حالا می‌توانیم روی گروه‌ها حلقه بزنیم
+// Now, we can iterate over the groups
 foreach (var group in productsByCategory)
 {
-    Console.WriteLine($"Category: {group.Key}"); // کلید گروه (مثلا Electronics)
+    // group.Key holds the category name (e.g., "Electronics")
+    Console.WriteLine($"Category: {group.Key}");
+    
+    // 'product' is an item within the current group
     foreach (var product in group)
     {
-        Console.WriteLine($"  - {product.Name}"); // عناصر داخل گروه
+        Console.WriteLine($"  - {product.Name}");
     }
 }
-// خروجی:
+// Output:
 // Category: Electronics
 //   - Laptop
 //   - Keyboard
@@ -235,7 +267,6 @@ var categories = new List<Category>
     new Category { Id = 1, Name = "Electronics" },
     new Category { Id = 2, Name = "Fruits" }
 };
-
 var products = new List<Product>
 {
     new Product { Name = "Laptop", CategoryId = 1 },
@@ -244,15 +275,15 @@ var products = new List<Product>
 };
 
 var productWithCategory = products.Join(
-    categories, // دنباله دوم
-    product => product.CategoryId, // کلید از دنباله اول
-    category => category.Id,       // کلید از دنباله دوم
-    (product, category) => new {   // تابع برای ساختن نتیجه نهایی
+    categories,                        // The second (inner) sequence to join with.
+    product => product.CategoryId,     // Key selector for the first (outer) sequence.
+    category => category.Id,           // Key selector for the second (inner) sequence.
+    (product, category) => new {       // A function to create the result object from a matching pair.
         ProductName = product.Name,
         CategoryName = category.Name
     });
 
-// نتیجه:
+// The result is a flat sequence of combined objects.
 // { ProductName = "Laptop", CategoryName = "Electronics" }
 // { ProductName = "Apple", CategoryName = "Fruits" }
 // { ProductName = "Headphones", CategoryName = "Electronics" }
@@ -272,31 +303,36 @@ var productWithCategory = products.Join(
 ```csharp
 var numbers = new List<int> { 1, 2, 3, 4, 5, 10 };
 
-int count = numbers.Count(); // 6
-int evenCount = numbers.Count(n => n % 2 == 0); // 3 (یک شرط هم میگیرد)
+// Count all items in the list.
+int count = numbers.Count(); // Result: 6
 
-long sum = numbers.Sum(); // 25
-double average = numbers.Average(); // 4.166...
+// Count only the items that satisfy a condition.
+int evenCount = numbers.Count(n => n % 2 == 0); // Result: 3
 
-int min = numbers.Min(); // 1
-int max = numbers.Max(); // 10
+// Calculate the sum of all numbers.
+long sum = numbers.Sum(); // Result: 25
 
-// روی لیستی از اشیاء
-double totalCost = products.Sum(p => p.Price); // 1353.5
+// Calculate the average.
+double average = numbers.Average(); // Result: 4.166...
+
+// Find the minimum and maximum values.
+int min = numbers.Min(); // Result: 1
+int max = numbers.Max(); // Result: 10
 ```
 
 #### `Aggregate`
 این یک متد قدرتمند و عمومی برای تجميع است. یک مقدار اولیه (seed) می‌گیرد و یک تابع را روی تک‌تک عناصر اعمال می‌کند تا نتیجه نهایی را بسازد.
 
 ```csharp
-// مثال ۱: محاسبه حاصل‌ضرب اعداد
+// Example 1: Calculate the product of all numbers (like a factorial).
 var numbers = new List<int> { 1, 2, 3, 4 };
-// 1*1 = 1 -> 1*2 = 2 -> 2*3 = 6 -> 6*4 = 24
-int product = numbers.Aggregate(1, (acc, current) => acc * current); // نتیجه: 24
+// Calculation: 1*1=1 -> 1*2=2 -> 2*3=6 -> 6*4=24
+// 'acc' is the accumulator, 'current' is the current element.
+int product = numbers.Aggregate(1, (acc, current) => acc * current); // Result: 24
 
-// مثال ۲: ساختن یک رشته از اسامی
+// Example 2: Create a comma-separated string from a list of names.
 var names = new List<string> { "Ali", "Reza", "Sara" };
-string csv = names.Aggregate((acc, current) => acc + ", " + current); // نتیجه: "Ali, Reza, Sara"
+string csv = names.Aggregate((acc, current) => acc + ", " + current); // Result: "Ali, Reza, Sara"
 ```
 
 ---
@@ -311,14 +347,14 @@ string csv = names.Aggregate((acc, current) => acc + ", " + current); // نتی�
 ```csharp
 var numbers = new List<int> { 2, 4, 6, 8, 10, 11 };
 
-// آیا حداقل یک عدد فرد در لیست وجود دارد؟
-bool hasAnyOdd = numbers.Any(n => n % 2 != 0); // true (به خاطر عدد ۱۱)
+// Does at least one odd number exist in the list?
+bool hasAnyOdd = numbers.Any(n => n % 2 != 0); // Result: true (because of 11)
 
-// آیا همه اعداد زوج هستند؟
-bool areAllEven = numbers.All(n => n % 2 == 0); // false (به خاطر عدد ۱۱)
+// Are all numbers in the list even?
+bool areAllEven = numbers.All(n => n % 2 == 0); // Result: false (because of 11)
 
-// آیا لیست شامل عدد ۶ است؟
-bool containsSix = numbers.Contains(6); // true
+// Does the list contain the number 6?
+bool containsSix = numbers.Contains(6); // Result: true
 ```
 
 ---
@@ -327,59 +363,57 @@ bool containsSix = numbers.Contains(6); // true
 این متدها یک عنصر خاص را از دنباله برمی‌گردانند و باعث **اجرای فوری** کوئری می‌شوند.
 
 * `First()` / `FirstOrDefault()`: اولین عنصر دنباله (یا اولین عنصری که شرط را برآورده کند) را برمی‌گرداند.
-    * `First()`: اگر عنصری پیدا نشود، یک **Exception** پرتاب می‌کند.
-    * `FirstOrDefault()`: اگر عنصری پیدا نشود، مقدار پیش‌فرض آن نوع را برمی‌گرداند (مثلاً `null` برای اشیاء یا `0` برای `int`).
-
-* `Last()` / `LastOrDefault()`: آخرین عنصر دنباله را برمی‌گرداند (مشابه `First`).
-
+* `Last()` / `LastOrDefault()`: آخرین عنصر دنباله را برمی‌گرداند.
 * `Single()` / `SingleOrDefault()`: تنها عنصر دنباله را برمی‌گرداند.
-    * `Single()`: اگر دنباله خالی باشد یا **بیش از یک عنصر** داشته باشد، Exception پرتاب می‌کند.
-    * `SingleOrDefault()`: اگر **بیش از یک عنصر** داشته باشد، Exception پرتاب می‌کند، اما اگر خالی باشد مقدار پیش‌فرض را برمی‌گرداند.
 
-* `ElementAt()` / `ElementAtOrDefault()`: عنصر موجود در یک ایندکس خاص را برمی‌گرداند.
+> 💡 **نکته مهم:**
+> * متدهای بدون `OrDefault` (مثل `First`, `Single`): اگر عنصری پیدا نشود یا شرط برقرار نباشد، یک **Exception** پرتاب می‌کنند. `Single` همچنین اگر بیش از یک عنصر پیدا شود، Exception می‌دهد.
+> * متدهای با `OrDefault` (مثل `FirstOrDefault`): اگر عنصری پیدا نشود، مقدار پیش‌فرض آن نوع را برمی‌گردانند (مثلاً `null` برای اشیاء یا `0` برای `int`). اگر همیشه مطمئن نیستید که عنصری وجود خواهد داشت، این گزینه‌ها امن‌تر هستند.
 
 ```csharp
 var numbers = new List<int> { 5, 10, 15, 20 };
 
-int first = numbers.First(); // 5
-int firstGreaterThan10 = numbers.First(n => n > 10); // 15
+// Get the very first element.
+int first = numbers.First(); // Result: 5
 
-// این کد Exception می‌دهد چون هیچ عنصری بزرگتر از 100 نیست
+// Get the first element that is greater than 10.
+int firstGreaterThan10 = numbers.First(n => n > 10); // Result: 15
+
+// This will throw an InvalidOperationException because no element matches the condition.
 // int error = numbers.First(n => n > 100);
 
-// این کد مقدار 0 را برمی‌گرداند (مقدار پیش‌فرض int)
-int safeValue = numbers.FirstOrDefault(n => n > 100); // 0
+// This is safer. It returns the default value for int (0) because no element matches.
+int safeValue = numbers.FirstOrDefault(n => n > 100); // Result: 0
 
-// پیدا کردن یک محصول خاص با آیدی
+// A common use case: find a specific item by its unique ID.
+// 'SingleOrDefault' is great here because IDs should be unique.
 var product = products.SingleOrDefault(p => p.Id == 123);
 ```
-
-> 💡 **نکته مهم:** همیشه بین `First` و `FirstOrDefault` (و موارد مشابه) با دقت انتخاب کنید. اگر مطمئن هستید که عنصر باید وجود داشته باشد، از `First` استفاده کنید تا در صورت عدم وجود، برنامه با یک خطای واضح متوقف شود. اگر عدم وجود عنصر یک حالت طبیعی است، از `FirstOrDefault` استفاده کنید و حتماً نتیجه را برای `null` بودن چک کنید.
 
 ---
 
 ### ۹. متدهای تولید (Generation)
-این متدها برای ساختن دنباله‌های جدید استفاده می‌شوند.
+این متدها برای ساختن دنباله‌های جدید از صفر استفاده می‌شوند.
 
 * `Range(start, count)`: یک دنباله از اعداد صحیح را در یک بازه مشخص تولید می‌کند.
 * `Repeat(element, count)`: یک دنباله با تکرار یک عنصر به تعداد مشخص تولید می‌کند.
 * `Empty<T>()`: یک دنباله خالی از نوع مشخص `T` تولید می‌کند.
 
 ```csharp
-// یک دنباله از اعداد ۱ تا ۱۰
-var oneToTen = Enumerable.Range(1, 10); // { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+// Generate a sequence of numbers from 1 to 10.
+var oneToTen = Enumerable.Range(1, 10); // Result: { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
 
-// یک دنباله با پنج بار تکرار کلمه "Hello"
-var hellos = Enumerable.Repeat("Hello", 5); // { "Hello", "Hello", "Hello", "Hello", "Hello" }
+// Create a sequence by repeating the string "Hello" 5 times.
+var hellos = Enumerable.Repeat("Hello", 5); // Result: { "Hello", "Hello", "Hello", "Hello", "Hello" }
 
-// یک لیست خالی از محصولات
+// Create an empty list of Products. Useful to avoid null reference exceptions.
 var emptyProducts = Enumerable.Empty<Product>();
 ```
 
 ---
 
 ### ۱۰. عملگرهای مجموعه (Set Operators)
-این متدها عملیاتی شبیه به نظریه مجموعه‌ها (اجتماع، اشتراک، تفاضل) را روی دو دنباله انجام می‌دهه‌ها.
+این متدها عملیاتی شبیه به نظریه مجموعه‌ها (اجتماع، اشتراک، تفاضل) را روی دو دنباله انجام می‌دهند.
 
 * `Distinct()`: عناصر تکراری را از یک دنباله حذف می‌کند.
 * `Union()`: اجتماع دو دنباله را برمی‌گرداند (بدون تکرار).
@@ -390,29 +424,36 @@ var emptyProducts = Enumerable.Empty<Product>();
 var listA = new List<int> { 1, 2, 3, 4, 4 };
 var listB = new List<int> { 3, 4, 5, 6 };
 
-var distinct = listA.Distinct(); // { 1, 2, 3, 4 }
-var union = listA.Union(listB); // { 1, 2, 3, 4, 5, 6 }
-var intersect = listA.Intersect(listB); // { 3, 4 }
-var except = listA.Except(listB); // { 1, 2 }
+// Remove duplicates from listA.
+var distinct = listA.Distinct(); // Result: { 1, 2, 3, 4 }
+
+// Combine both lists, without duplicates.
+var union = listA.Union(listB); // Result: { 1, 2, 3, 4, 5, 6 }
+
+// Get elements that exist in both lists.
+var intersect = listA.Intersect(listB); // Result: { 3, 4 }
+
+// Get elements from listA that are not in listB.
+var except = listA.Except(listB); // Result: { 1, 2 }
 ```
 
 ---
 
-## جمع‌بندی نهایی
+## 🎉 جمع‌بندی نهایی
 
 شما اکنون یک دید بسیار جامع و کامل از قدرتمندترین متدهای LINQ دارید. کلید تسلط بر LINQ، **تمرین** و **ترکیب این متدها** با یکدیگر است. یک کوئری LINQ خوب، زنجیره‌ای (Chain) از این متدهاست که داده‌ها را مرحله به مرحله پالایش، تبدیل و مرتب می‌کند تا به نتیجه دلخواه برسید.
 
 ```csharp
-// مثال ترکیبی پیشرفته:
-// از لیست محصولات، نام 3 محصول گران‌قیمت در دسته "Electronics"
-// را که به ترتیب حروف الفبا مرتب شده‌اند، استخراج کن.
+// Advanced combined example:
+// From a list of products, get the names of the top 3 most expensive "Electronics" products,
+// sorted alphabetically.
 
 var result = products
-    .Where(p => p.Category == "Electronics") // 1. فیلتر کن
-    .OrderByDescending(p => p.Price)         // 2. بر اساس قیمت نزولی مرتب کن
-    .Take(3)                                 // 3. سه تای اول را بگیر
-    .OrderBy(p => p.Name)                    // 4. حالا این سه تا را بر اساس نام صعودی مرتب کن
-    .Select(p => p.Name);                    // 5. فقط نامشان را استخراج کن
+    .Where(p => p.Category == "Electronics") // 1. Filter by category.
+    .OrderByDescending(p => p.Price)         // 2. Order by price from high to low.
+    .Take(3)                                 // 3. Take the top 3 most expensive ones.
+    .OrderBy(p => p.Name)                    // 4. Now, order these 3 alphabetically by name.
+    .Select(p => p.Name);                    // 5. Finally, select only their names.
 ```
 
 امیدوارم این راهنما برای شما مفید بوده باشد. موفق باشید و از کدنویسی لذت ببرید! ❤️
